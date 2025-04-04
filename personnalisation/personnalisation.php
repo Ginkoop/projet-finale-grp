@@ -61,15 +61,20 @@ class Personnalisation extends Module
      */
     public function install()
     {
-        Configuration::updateValue('PERSONNALISATION_LIVE_MODE', false);
+        Configuration::updateValue('PERSONNALISATION_CATEGORY_ID', 0) &&
+        Configuration::updateValue('PERSONNALISATION_LIVE_MODE', true);
 
         return parent::install() &&
             $this->registerHook('header') &&
-            $this->registerHook('displayBackOfficeHeader');
+            $this->registerHook('displayBackOfficeHeader') &&
+            $this->registerHook('displayProductAdditionalInfo') &&
+            $this->registerHook('actionFrontControllerSetMedia') &&
+            $this->registerHook('actionCartSave');
     }
 
     public function uninstall()
     {
+        Configuration::deleteByName('PERSONNALISATION_CATEGORY_ID') &&
         Configuration::deleteByName('PERSONNALISATION_LIVE_MODE');
 
         return parent::uninstall();
@@ -86,6 +91,8 @@ class Personnalisation extends Module
         if (((bool)Tools::isSubmit('submitPersonnalisationModule')) == true) {
             $this->postProcess();
         }
+
+        $this->pen_category_id = (int)Configuration::get('PERSONNALISATION_CATEGORY_ID');
 
         $this->context->smarty->assign('module_dir', $this->_path);
 
@@ -113,6 +120,17 @@ class Personnalisation extends Module
             .'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
 
+        $categories = Category::getCategories($this->context->language->id, false);
+        $categories_options = [];
+        foreach ($categories as $category) {
+            foreach ($category as $cat) {
+                $categories_options[] = [
+                    'id' => $cat['id_category'],
+                    'name' => $cat['name']
+                ];
+            }
+        }
+
         $helper->tpl_vars = array(
             'fields_value' => $this->getConfigFormValues(), /* Add values for your inputs */
             'languages' => $this->context->controller->getLanguages(),
@@ -127,51 +145,49 @@ class Personnalisation extends Module
      */
     protected function getConfigForm()
     {
-        return array(
-            'form' => array(
-                'legend' => array(
-                'title' => $this->l('Settings'),
-                'icon' => 'icon-cogs',
-                ),
-                'input' => array(
-                    array(
+        return [
+            'form' => [
+                'legend' => [
+                    'title' => $this->l('Paramètres'),
+                    'icon' => 'icon-cogs',
+                ],
+                'input' => [
+                    [
+                        'type' => 'select',
+                        'label' => $this->l('Catégorie des stylos'),
+                        'name' => 'PERSONNALISATION_CATEGORY_ID',
+                        'required' => true,
+                        'options' => [
+                            'query' => Category::getCategories($this->context->language->id, false, false),
+                            'id' => 'id_category',
+                            'name' => 'name'
+                        ],
+                        'desc' => $this->l('Sélectionnez la catégorie.'),
+                    ],
+                    [
                         'type' => 'switch',
-                        'label' => $this->l('Live mode'),
+                        'label' => $this->l('Activer la personnalisation'),
                         'name' => 'PERSONNALISATION_LIVE_MODE',
                         'is_bool' => true,
-                        'desc' => $this->l('Use this module in live mode'),
-                        'values' => array(
-                            array(
+                        'values' => [
+                            [
                                 'id' => 'active_on',
                                 'value' => true,
-                                'label' => $this->l('Enabled')
-                            ),
-                            array(
+                                'label' => $this->l('Activé')
+                            ],
+                            [
                                 'id' => 'active_off',
                                 'value' => false,
-                                'label' => $this->l('Disabled')
-                            )
-                        ),
-                    ),
-                    array(
-                        'col' => 3,
-                        'type' => 'text',
-                        'prefix' => '<i class="icon icon-envelope"></i>',
-                        'desc' => $this->l('Enter a valid email address'),
-                        'name' => 'PERSONNALISATION_ACCOUNT_EMAIL',
-                        'label' => $this->l('Email'),
-                    ),
-                    array(
-                        'type' => 'password',
-                        'name' => 'PERSONNALISATION_ACCOUNT_PASSWORD',
-                        'label' => $this->l('Password'),
-                    ),
-                ),
-                'submit' => array(
-                    'title' => $this->l('Save'),
-                ),
-            ),
-        );
+                                'label' => $this->l('Désactivé')
+                            ]
+                        ],
+                    ],
+                ],
+                'submit' => [
+                    'title' => $this->l('Enregistrer'),
+                ],
+            ],
+        ];
     }
 
     /**
@@ -180,9 +196,8 @@ class Personnalisation extends Module
     protected function getConfigFormValues()
     {
         return array(
-            'PERSONNALISATION_LIVE_MODE' => Configuration::get('PERSONNALISATION_LIVE_MODE', true),
-            'PERSONNALISATION_ACCOUNT_EMAIL' => Configuration::get('PERSONNALISATION_ACCOUNT_EMAIL', 'contact@prestashop.com'),
-            'PERSONNALISATION_ACCOUNT_PASSWORD' => Configuration::get('PERSONNALISATION_ACCOUNT_PASSWORD', null),
+            'PERSONNALISATION_PEN_CATEGORY_ID' => Configuration::get('PERSONNALISATION_CATEGORY_ID'),
+            'PERSONNALISATION_LIVE_MODE' => Configuration::get('PERSONNALISATION_LIVE_MODE'),
         );
     }
 
@@ -216,5 +231,30 @@ class Personnalisation extends Module
     {
         $this->context->controller->addJS($this->_path.'/views/js/front.js');
         $this->context->controller->addCSS($this->_path.'/views/css/front.css');
+    }
+
+    public function hookActionFrontControllerSetMedia()
+    {
+        
+    }
+
+    public function hookDisplayProductAdditionalInfo()
+    {
+       
+    }
+
+    public function hookActionCartSave()
+    {
+        
+    }
+
+    protected function isProductInPenCategory()
+    {
+        
+    }
+
+    protected function saveCustomization()
+    {
+        
     }
 }
