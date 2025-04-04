@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>personnalisation</name>
+	<displayName><![CDATA[personnalisation]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[Module qui permet de personnaliser un produit depuis le front et recuperer le visuelle finale dans le back.]]></description>
+	<author><![CDATA[Cinnk]]></author>
+	<tab><![CDATA[front_office_features]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+</module>
