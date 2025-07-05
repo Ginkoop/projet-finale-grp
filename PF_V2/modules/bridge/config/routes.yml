@@ -1,0 +1,14 @@
+# Configuration de la route pour l'API du module Bridge
+
+bridge_api:
+  # Chemin de l'URL pour accéder à cette route
+  path: /module/bridge/api
+
+  # Méthodes HTTP autorisées pour cette route
+  methods: [GET, POST]
+
+  # Configuration par défaut pour cette route
+  defaults:
+    # Contrôleur qui sera utilisé pour gérer les requêtes à cette route
+    # Format : "module:controller:method"
+    _controller: "module:bridge:api"

@@ -1,0 +1,81 @@
+# Documentation de l’API Bridge
+
+Le module Bridge fournit une API pour la gestion des produits et des stocks dans PrestaShop. Cette API permet d’effectuer différentes actions via des requêtes HTTP, en utilisant une clé API pour l’authentification.
+
+## Authentification
+
+Toutes les requêtes à l’API doivent inclure la clé API configurée dans le back-office du module Bridge. Cette clé doit être transmise dans les en-têtes HTTP ou en paramètre selon l’implémentation de votre endpoint.
+
+## Points d’entrée
+
+L’API fonctionne via un dispatcher (`ApiDispatcher`) qui gère les actions selon le paramètre `action` fourni dans la requête.
+
+### Actions disponibles
+
+#### 1. Récupérer tous les produits
+
+- **Action** : `getAllProducts`
+- **Méthode** : GET ou POST
+- **Paramètres** : Aucun
+- **Réponse** : Liste des produits au format JSON.
+
+**Exemple de réponse :**
+```json
+[
+  {
+    "id_product": 1,
+    "name": "Produit A",
+    "stock": 10
+  },
+  ...
+]
+```
+
+#### 2. Mettre à jour le stock d’un produit
+
+- **Action** : `update`
+- **Méthode** : POST
+- **Paramètres** :
+  - `id_product` (int, requis) : ID du produit à mettre à jour
+  - `qty` (int, requis) : Nouvelle quantité de stock
+- **Réponse** : Objet JSON indiquant le succès ou l’échec de l’opération.
+
+**Exemple de requête :**
+```json
+{
+  "action": "update",
+  "id_product": 5,
+  "qty": 20
+}
+```
+
+**Exemple de réponse :**
+```json
+{
+  "success": true,
+  "id_product": 5,
+  "new_qty": 20
+}
+```
+
+#### 3. Action inconnue
+
+Si l’action n’est pas reconnue, la réponse sera :
+```json
+{
+  "error": "Unknown action"
+}
+```
+
+## Logs
+
+Les requêtes et actions de l’API sont enregistrées dans un fichier de logs accessible depuis la page de configuration du module dans le back-office PrestaShop.
+
+## Sécurité
+
+- Protégez votre clé API et ne la partagez pas publiquement.
+- Limitez l’accès à l’API aux IP ou applications de confiance.
+
+## Extension
+
+Pour ajouter de nouvelles actions, modifiez la classe `ApiDispatcher` et ajoutez de nouveaux cas dans la méthode `handleRequest`.
